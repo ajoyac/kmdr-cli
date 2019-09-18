@@ -1,19 +1,17 @@
-import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
+import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from "axios";
 import os from "os";
-import uuid from "uuid/v1";
 import { AuthCredentials } from "../interfaces";
 
-class Client {
+export class Client {
   private baseURL: string = process.env.KMDR_API_URL || "https://api.kmdr.sh/api/graphql";
   private shell: string;
   private term: string;
   private os: string;
-  private sessionId: string;
   private instance: AxiosInstance;
   private version: string;
+  private sessionId: string = "";
 
   constructor(version: string, axiosInstance?: AxiosInstance, auth?: AuthCredentials) {
-    this.sessionId = uuid();
     this.shell = process.env.SHELL || "";
     this.os = `${os.platform()} ${os.release()}`;
     this.term = `${process.env.TERM};${process.env.TERM_PROGRAM}`;
@@ -26,30 +24,41 @@ class Client {
         headers: {
           "Content-Type": "application/json",
           "X-kmdr-client-os": this.os,
-          "X-kmdr-client-session-id": this.sessionId,
           "X-kmdr-client-shell": this.shell,
           "X-kmdr-client-term": this.term,
           "X-kmdr-client-version": this.version,
         },
         responseType: "json",
       });
+    this.setupInterceptors();
   }
 
-  protected doQuery(
-    query: string,
-    variables?: {},
-    config: AxiosRequestConfig | undefined = undefined,
-  ) {
+  protected doQuery(query: string, variables?: {}, config?: AxiosRequestConfig) {
     return this.post({ query, variables }, config);
   }
 
-  protected doMutation(query: string, variables?: {}) {
-    return this.post({ query, variables });
+  protected doMutation(query: string, variables?: {}, config?: AxiosRequestConfig) {
+    return this.post({ query, variables }, config);
   }
 
-  private post(data: any, config: AxiosRequestConfig | undefined = undefined) {
+  private setupInterceptors() {
+    this.instance.interceptors.response.use(this.extractSessionId.bind(this));
+    this.instance.interceptors.request.use(this.injectSessionId.bind(this));
+  }
+
+  private extractSessionId(response: AxiosResponse): AxiosResponse {
+    this.sessionId = response.headers["x-kmdr-client-session-id"];
+    return response;
+  }
+
+  private injectSessionId(config: AxiosRequestConfig): AxiosRequestConfig {
+    const newConfig = config;
+    newConfig.headers["x-kmdr-client-session-id"] = this.sessionId;
+
+    return newConfig;
+  }
+
+  private post(data: any, config?: AxiosRequestConfig) {
     return this.instance.post("", data, { ...config });
   }
 }
-
-export default Client;

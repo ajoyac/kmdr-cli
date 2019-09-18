@@ -265,6 +265,15 @@ export interface ExplainCommandResponse {
   explainCommand: ExplainCommand;
 }
 
+export interface ExplainResponse {
+  explain: Explain;
+}
+
+export interface Explain {
+  query: string;
+  ast: string;
+}
+
 export interface GraphQLResponse {
   data: ExplainCommandResponse;
 }

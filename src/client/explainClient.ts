@@ -1,8 +1,8 @@
-import { mutationCreateExplainFeedback, queryExplainCommand } from "../graphql";
+import { mutationCreateExplainFeedback, queryExplain } from "../graphql";
 import { GraphQLResponse } from "../interfaces";
-import Client from "./client";
+import { Client } from "./client";
 
-class Explain extends Client {
+export class ExplainClient extends Client {
   constructor(version: string) {
     super(version);
   }
@@ -18,12 +18,11 @@ class Explain extends Client {
         }
       }
     };
-    return super.doQuery(queryExplainCommand, { query }, { transformResponse });
+
+    return super.doQuery(queryExplain, { query }, { transformResponse });
   }
 
   public async sendFeedback(answer: string, comment: string) {
     return super.doMutation(mutationCreateExplainFeedback, { answer, comment });
   }
 }
-
-export default Explain;

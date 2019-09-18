@@ -7,7 +7,6 @@ const inquirer_1 = __importDefault(require("inquirer"));
 const node_emoji_1 = __importDefault(require("node-emoji"));
 const ast_1 = __importDefault(require("../ast"));
 const decorator_1 = __importDefault(require("../highlight/decorator"));
-const highlight_1 = __importDefault(require("../highlight/highlight"));
 const console_1 = __importDefault(require("./console"));
 // const explanationEmoji = emoji.get("bulb");
 const robotEmoji = node_emoji_1.default.get("robot_face");
@@ -37,7 +36,6 @@ class ExplainConsole extends console_1.default {
             {
                 message: "Awesome! What did you like about this explanation?",
                 name: "comment",
-                prefix: `${fireEmoji}`,
                 type: "input",
             },
         ];
@@ -45,7 +43,6 @@ class ExplainConsole extends console_1.default {
             {
                 message: "What's wrong with the explanation?",
                 name: "comment",
-                prefix: `${thumbsDownEmoji}`,
                 type: "input",
             },
         ];
@@ -191,17 +188,29 @@ class ExplainConsole extends console_1.default {
         super.error(msg);
     }
     render(data) {
-        const { query, leafNodes } = data.explainCommand;
+        const { query, ast } = data.explain;
+        let explanation = {};
+        try {
+            explanation = JSON.parse(ast);
+            console.log(explanation);
+        }
+        catch (err) {
+            console.error(err);
+        }
         this.print();
+        /*
         if (leafNodes.length === 0) {
-            this.error("Your query didn't match any program in our database. Please try with another program");
+          this.error(
+            "Your query didn't match any program in our database. Please try with another program",
+          );
+        } else {
+          const highlight = new Highlight();
+          const decoratedQuery = highlight.decorate(query, leafNodes);
+          const help = this.makeHelp(leafNodes);
+    
+          this.print(help);
         }
-        else {
-            const highlight = new highlight_1.default();
-            const decoratedQuery = highlight.decorate(query, leafNodes);
-            const help = this.makeHelp(leafNodes);
-            this.print(help);
-        }
+        */
     }
 }
 exports.default = ExplainConsole;

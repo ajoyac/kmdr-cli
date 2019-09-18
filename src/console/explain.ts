@@ -7,7 +7,7 @@ import {
   ArgumentNodeAST,
   AssignmentNodeAST,
   ConsoleAnswers,
-  ExplainCommandResponse,
+  ExplainResponse,
   OperatorNodeAST,
   OptionNodeAST,
   PipeNodeAST,
@@ -49,7 +49,6 @@ class ExplainConsole extends Console {
     {
       message: "Awesome! What did you like about this explanation?",
       name: "comment",
-      prefix: `${fireEmoji}`,
       type: "input",
     },
   ];
@@ -58,7 +57,6 @@ class ExplainConsole extends Console {
     {
       message: "What's wrong with the explanation?",
       name: "comment",
-      prefix: `${thumbsDownEmoji}`,
       type: "input",
     },
   ];
@@ -236,10 +234,20 @@ class ExplainConsole extends Console {
     super.error(msg);
   }
 
-  public render(data: ExplainCommandResponse) {
-    const { query, leafNodes } = data.explainCommand;
+  public render(data: ExplainResponse) {
+    const { query, ast } = data.explain;
+    let explanation = {};
+
+    try {
+      explanation = JSON.parse(ast);
+      console.log(explanation);
+    } catch (err) {
+      console.error(err);
+    }
+
     this.print();
 
+    /*
     if (leafNodes.length === 0) {
       this.error(
         "Your query didn't match any program in our database. Please try with another program",
@@ -251,6 +259,7 @@ class ExplainConsole extends Console {
 
       this.print(help);
     }
+    */
   }
 }
 

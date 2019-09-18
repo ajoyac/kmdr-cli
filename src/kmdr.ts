@@ -1,5 +1,5 @@
 import cli from "commander";
-import ExplainClient from "./client/explain";
+import { ExplainClient } from "./client/";
 import ExplainConsole from "./console/explain";
 import { Settings } from "./interfaces";
 
